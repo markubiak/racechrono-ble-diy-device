@@ -36,8 +36,9 @@ ESP32RaceChrono::Monitor::Monitor(BLEServer* server)
     if (service == nullptr)
     {
         service = server->createService(SERVICE_UUID);
-        BLEDevice::getAdvertising()->addServiceUUID(SERVICE_UUID);
     }
+    server->getAdvertising()->addServiceUUID(SERVICE_UUID);
+    server->startAdvertising();
 
     // Create the config and notify characteristics with callbacks
     config_ch = service->createCharacteristic(
@@ -63,6 +64,7 @@ ESP32RaceChrono::Monitor::Monitor(BLEServer* server)
 // Destructor, untested since current implementation never destroys the class
 ESP32RaceChrono::Monitor::~Monitor()
 {
+    server->removeService(service);
     server->setCallbacks(nullptr);
     config_ch->setCallbacks(nullptr);
     notify_ch->setCallbacks(nullptr);
@@ -264,8 +266,9 @@ ESP32RaceChrono::CANSpoof::CANSpoof(BLEServer* server)
     if (service == nullptr)
     {
         service = server->createService(SERVICE_UUID);
-        BLEDevice::getAdvertising()->addServiceUUID(SERVICE_UUID);
     }
+    server->getAdvertising()->addServiceUUID(SERVICE_UUID);
+    server->startAdvertising();
 
     // Create the main and filter characteristic and set the server callback
     main_ch = service->createCharacteristic(
@@ -285,6 +288,7 @@ ESP32RaceChrono::CANSpoof::CANSpoof(BLEServer* server)
 // Destructor, untested since current implementation never destroys the class
 ESP32RaceChrono::CANSpoof::~CANSpoof()
 {
+    server->removeService(service);
     server->setCallbacks(nullptr);
     delete server_callbacks;
 }
